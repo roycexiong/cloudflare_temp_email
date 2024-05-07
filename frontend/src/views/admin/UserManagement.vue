@@ -1,21 +1,21 @@
 <script setup>
 import { ref, h, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
+import { NBadge } from 'naive-ui';
 
 import { useGlobalState } from '../../store'
 import { api } from '../../api'
 
-const { localeCache, adminAuth, adminSendBoxTabAddress, showAdminAuth } = useGlobalState()
+const { localeCache } = useGlobalState()
 const message = useMessage()
 
 const { t } = useI18n({
     locale: localeCache.value || 'zh',
     messages: {
         en: {
-            address: 'Address',
             success: 'Success',
-            to_mail: 'To Mail',
-            subject: 'Subject',
+            user_email: 'User Email',
+            address_count: 'Address Count',
             created_at: 'Created At',
             action: 'Action',
             query: 'Query',
@@ -23,10 +23,9 @@ const { t } = useI18n({
             view: 'View',
         },
         zh: {
-            address: '地址',
             success: '成功',
-            to_mail: '收件人邮箱',
-            subject: '主题',
+            user_email: '用户邮箱',
+            address_count: '地址数量',
             created_at: '创建时间',
             action: '操作',
             query: '查询',
@@ -40,16 +39,15 @@ const count = ref(0)
 const page = ref(1)
 const pageSize = ref(20)
 
-const curRow = ref({})
-const showModal = ref(false)
+const userQuery = ref('')
 
 const fetchData = async () => {
     try {
         const { results, count: addressCount } = await api.fetch(
-            `/admin/sendbox`
+            `/admin/users`
             + `?limit=${pageSize.value}`
             + `&offset=${(page.value - 1) * pageSize.value}`
-            + (adminSendBoxTabAddress.value ? `&address=${adminSendBoxTabAddress.value}` : '')
+            + (userQuery.value ? `&query=${userQuery.value}` : '')
         );
         data.value = results.map((item) => {
             try {
@@ -79,40 +77,25 @@ const columns = [
         key: "id"
     },
     {
-        title: t('address'),
-        key: "address"
+        title: t('user_email'),
+        key: "user_email"
     },
     {
-        title: t('to_mail'),
-        key: "to_mail"
-    },
-    {
-        title: t('subject'),
-        key: "subject"
+        title: t('address_count'),
+        key: "address_count",
+        render(row) {
+            return h(NBadge, {
+                value: row.address_count,
+                'show-zero': true,
+                max: 99,
+                type: "success"
+            })
+        }
     },
     {
         title: t('created_at'),
         key: "created_at"
     },
-    {
-        title: t('action'),
-        key: 'actions',
-        render(row) {
-            return h('div', [
-                h(NButton,
-                    {
-                        type: 'success',
-                        tertiary: true,
-                        onClick: () => {
-                            showModal.value = true;
-                            curRow.value = row;
-                        }
-                    },
-                    { default: () => t('view') }
-                )
-            ])
-        }
-    }
 ]
 
 watch([page, pageSize], async () => {
@@ -120,21 +103,14 @@ watch([page, pageSize], async () => {
 })
 
 onMounted(async () => {
-    if (!adminAuth.value) {
-        showAdminAuth.value = true;
-        return;
-    }
     await fetchData()
 })
 </script>
 
 <template>
     <div>
-        <n-modal v-model:show="showModal" preset="dialog" style="width: 100%;">
-            <pre style="overflow: auto;">{{ curRow.raw }}</pre>
-        </n-modal>
         <n-input-group>
-            <n-input v-model:value="adminSendBoxTabAddress" />
+            <n-input v-model:value="userQuery" />
             <n-button @click="fetchData" type="primary" tertiary>
                 {{ t('query') }}
             </n-button>

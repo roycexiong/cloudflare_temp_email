@@ -22,6 +22,8 @@ PREFIX = "tmp"
 DOMAINS = ["xxx.xxx1" , "xxx.xxx2"]
 JWT_SECRET = "xxx"
 BLACK_LIST = ""
+# Enable user login and bind email
+# ENABLE_USER = true
 # Allow users to create email addresses
 ENABLE_USER_CREATE_EMAIL = true
 # Allow users to delete messages
@@ -43,6 +45,10 @@ ENABLE_AUTO_REPLY = false
 binding = "DB"
 database_name = "xxx"
 database_id = "xxx"
+
+# [[kv_namespaces]]
+# binding = "KV"
+# id = "xxxx"
 
 # ratelimit config for /api/new_address
 # [[unsafe.bindings]]

@@ -118,6 +118,7 @@ api.get('/open_api/settings', async (c) => {
         "enableAutoReply": getBooleanValue(c.env.ENABLE_AUTO_REPLY),
         "copyright": c.env.COPYRIGHT,
         "cfTurnstileSiteKey": c.env.CF_TURNSTILE_SITE_KEY,
+        "enableUser": c.env.ENABLE_USER,
     });
 })
 
